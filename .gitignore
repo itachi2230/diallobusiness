@@ -1,0 +1,16 @@
+# Fichiers temporaires et de build
+bin/
+packages/
+obj/
+*.user
+*.suo
+*.cache
+*.log
+*.vs/
+*.dbmdl
+*.bak
+*.local
+*.dll
+*.exe
+*.pdb
+google-services.json
