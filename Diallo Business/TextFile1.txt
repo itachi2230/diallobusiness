@@ -17,7 +17,6 @@ namespace Diallo_Business
 {
     public partial class MainWindow : Window
     {
-        private bool isCollapsed = false;
         public MainWindow()
         {
             InitializeComponent();
@@ -28,34 +27,7 @@ namespace Diallo_Business
             MainContainer.Content = new UC_Stock();
             TxtPageTitle.Text = "Gestion Stock";
         }
-        private void BtnToggle_Click(object sender, RoutedEventArgs e)
-        {
-            if (!isCollapsed)
-            {
-                // RÉDUIRE LA BARRE
-                SideColumn.Width = new GridLength(100);
-                LogoText.Visibility = Visibility.Collapsed;
-                UserInfo.Visibility = Visibility.Collapsed;
 
-                // Ajuster l'alignement du bouton toggle pour qu'il soit centré
-                BtnToggle.HorizontalAlignment = HorizontalAlignment.Center;
-                BtnToggle.Margin = new Thickness(0, 10, 0, 0);
-
-                isCollapsed = true;
-            }
-            else
-            {
-                // AGRANDIR LA BARRE
-                SideColumn.Width = new GridLength(280);
-                LogoText.Visibility = Visibility.Visible;
-                UserInfo.Visibility = Visibility.Visible;
-
-                BtnToggle.HorizontalAlignment = HorizontalAlignment.Right;
-                BtnToggle.Margin = new Thickness(0, 10, 10, 0);
-
-                isCollapsed = false;
-            }
-        }
         private void TitleBar_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             if (e.ClickCount == 1)
@@ -100,7 +72,7 @@ namespace Diallo_Business
             switch (btn.Name)
             {
                 case "BtnDashboard":
-                    MainContainer.Content = new UC_Dashboard(); // À créer
+                    // MainContainer.Content = new UC_Dashboard(); // À créer
                     break;
 
                 case "BtnStock":
@@ -112,7 +84,7 @@ namespace Diallo_Business
                     break;
 
                 case "BtnBilans":
-                    MainContainer.Content = new UC_Bilans(); // À créer
+                    // MainContainer.Content = new UC_Bilan(); // À créer
                     break;
 
                 case "BtnParametres":

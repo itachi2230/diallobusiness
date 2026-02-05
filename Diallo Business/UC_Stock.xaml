@@ -1,0 +1,115 @@
+﻿<UserControl x:Class="Diallo_Business.UC_Stock"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Diallo_Business"
+             mc:Ignorable="d" 
+             d:DesignHeight="650" d:DesignWidth="1000">
+
+        <Grid Margin="15">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition x:Name="ColForm" Width="0"/>
+            </Grid.ColumnDefinitions>
+
+            <Grid Grid.Column="0" Margin="0,0,10,0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,20">
+                    <TextBox x:Name="TxtSearch" Width="250" Tag="Rechercher..." TextChanged="TxtSearch_TextChanged" VerticalAlignment="Center"/>
+                    <Button Content="+ Ajouter un Article" Click="BtnShowAdd_Click" Margin="15,0,0,0" Background="#38BDF8" Foreground="#0B1120"/>
+                </StackPanel>
+
+            <DataGrid x:Name="DgStock" Grid.Row="1" AutoGenerateColumns="False">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="📦 Article" Binding="{Binding Nom}" Width="2.5*"/>
+
+                    <DataGridTextColumn Header="📂 Type" Binding="{Binding Type}" Width="*"/>
+
+                    <DataGridTextColumn Header="💰 P. Achat" Binding="{Binding PrixAchat, StringFormat='{}{0:N0} F'}" Width="*">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Foreground" Value="#94A3B8"/>
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+
+                    <DataGridTextColumn Header="💵 P. Vente" Binding="{Binding PrixVente, StringFormat='{}{0:N0} F'}" Width="*">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Foreground" Value="#4ADE80"/>
+                                <Setter Property="FontWeight" Value="Bold"/>
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+
+                    <DataGridTextColumn Header="🔢 Stock" Binding="{Binding QuantiteDispo}" Width="0.8*"/>
+
+                    <DataGridTemplateColumn Header="⚙️ Actions" Width="130">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                    <Button Content="✎" Click="BtnEdit_Click" Background="#F59E0B" Width="35" Height="30" Margin="2" Padding="0"/>
+                                    <Button Content="🗑" Click="BtnDelete_Click" Background="#EF4444" Width="35" Height="30" Margin="2" Padding="0"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Grid>
+
+            <Border x:Name="BorderForm" Grid.Column="1" Background="#151C2C" CornerRadius="15" Padding="20">
+                <StackPanel>
+                    <TextBlock x:Name="TxtFormTitle" Text="Nouvel Article" FontSize="20" FontWeight="Bold" Margin="0,0,0,20" Foreground="#38BDF8"/>
+
+                    <TextBlock Text="Nom de l'article"/>
+                    <TextBox x:Name="InpNom" Margin="0,5,0,15"/>
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0" Margin="0,0,5,0">
+                            <TextBlock Text="Prix Achat"/>
+                            <TextBox x:Name="InpPrixAchat" Margin="0,5,0,15"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="1" Margin="5,0,0,0">
+                            <TextBlock Text="Prix Vente"/>
+                            <TextBox x:Name="InpPrixVente" Margin="0,5,0,15"/>
+                        </StackPanel>
+                    </Grid>
+
+                    <TextBlock Text="Quantité en Stock"/>
+                    <TextBox x:Name="InpQtite" Margin="0,5,0,15"/>
+
+                    <TextBlock Text="Catégorie / Type"/>
+                    <ComboBox x:Name="InpType" Height="40" Margin="0,5,0,20">
+                        <ComboBoxItem Content="Électronique"/>
+                        <ComboBoxItem Content="Consommable"/>
+                        <ComboBoxItem Content="Boisson/Café"/>
+                    </ComboBox>
+
+                <UniformGrid Columns="2" Height="45" Margin="0,10,0,0">
+                    <Button Content="Annuler" 
+                        Click="BtnCancel_Click" 
+                        Background="#475569" 
+                        Margin="0,0,5,0" 
+                        VerticalAlignment="Stretch"/>
+
+                            <Button Content="Enregistrer" 
+                        Click="BtnSave_Click" 
+                        Background="#38BDF8" 
+                        Foreground="#0B1120" 
+                        Margin="5,0,0,0" 
+                        VerticalAlignment="Stretch"/>       
+                </UniformGrid>
+            </StackPanel>
+            </Border>
+        </Grid>
+    </UserControl>
