@@ -102,4 +102,27 @@ namespace DialloBusinessCenter.Models
         public string Contenu { get; set; }
         public DateTime DateCreation { get; set; }
     }
+
+    public class OMNote
+    {
+        public int Id { get; set; }
+        public DateTime Date { get; set; }
+        public string Type { get; set; }
+        public decimal Montant { get; set; }
+        public string Description { get; set; }
+        public string Agent { get; set; }
+        public string ColorType => Type == "ENTREE" ? "#4ADE80" : "#F87171";
+    }
+
+    public class OMCloture
+    {
+        public int Id { get; set; }
+        public DateTime Date { get; set; }
+        public string Agent { get; set; }
+        public decimal SoldeHier { get; set; } // Somme réelle du soir précédent
+        public decimal SoldeTheorique { get; set; } // Calcul : Hier + Entrées - Sorties
+        public decimal SoldePhysiqueTotal { get; set; } // Somme de tous les comptes + liquide saisis
+        public decimal Ecart { get; set; } // Manquant ou surplus
+        public Dictionary<string, decimal> Details { get; set; } // Orange, Wave, Cash, etc.
+    }
 }

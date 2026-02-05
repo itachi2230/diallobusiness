@@ -158,6 +158,17 @@ namespace Diallo_Business
                 SaveLocal("formations.json", list);
             }
         }
+        public static void DeleteFormation(int id)
+        {
+            var list = GetFormations();
+            var item = list.FirstOrDefault(x => x.Id == id);
+            if (item != null)
+            {
+                list.Remove(item);
+                SaveLocal("formations.json", list);
+                LogAction($"Formation supprimée : {item.Nom} (Client: {item.NomClient})");
+            }
+        }
 
         // Flux Divers (Eau, Poubelle, Reliquats oubliés)
         public static List<FluxDivers> GetFlux() => LoadLocal<FluxDivers>("flux.json");
@@ -170,6 +181,17 @@ namespace Diallo_Business
             list.Add(item);
             SaveLocal("flux.json", list);
         }
+        public static void DeleteFlux(int id)
+        {
+            var list = GetFlux();
+            var item = list.FirstOrDefault(x => x.Id == id);
+            if (item != null)
+            {
+                list.Remove(item);
+                SaveLocal("flux.json", list);
+                LogAction($"Flux divers supprimé : {item.Type}");
+            }
+        }
 
         // Factures
         public static List<Facture> GetFactures() => LoadLocal<Facture>("factures.json");
@@ -181,6 +203,95 @@ namespace Diallo_Business
             item.Date = DateTime.Now;
             list.Add(item);
             SaveLocal("factures.json", list);
+        }
+        public static void UpdateFacture(Facture updatedItem)
+        {
+            var list = GetFactures();
+            var index = list.FindIndex(x => x.Id == updatedItem.Id);
+            if (index != -1)
+            {
+                list[index] = updatedItem;
+                SaveLocal("factures.json", list);
+                LogAction($"Facture mise à jour : ID {updatedItem.Id} (Client: {updatedItem.NomClient})");
+            }
+        }
+
+        public static void DeleteFacture(int id)
+        {
+            var list = GetFactures();
+            var item = list.FirstOrDefault(x => x.Id == id);
+            if (item != null)
+            {
+                list.Remove(item);
+                SaveLocal("factures.json", list);
+                LogAction($"Facture supprimée : ID {item.Id} (Montant: {item.MontantTotal:N0} F)");
+            }
+        }
+
+        // --- GESTION ORANGE MONEY / TRANSFERTS ---
+
+        // 1. Gestion de la liste des services (Orange, Wave, etc.)
+        public static List<string> GetTransfertServices()
+        {
+            string path = Path.Combine(folderPath, "transfert_services.json");
+            if (!File.Exists(path))
+            {
+                // Liste par défaut si le fichier n'existe pas encore
+                var defaut = new List<string> { "CASH (Liquide)", "Orange Money", "Wave", "Moov Money", "Sewa", "Telecel" };
+                SaveLocal("transfert_services.json", defaut);
+                return defaut;
+            }
+            return LoadLocal<string>("transfert_services.json");
+        }
+
+        public static void AddTransfertService(string name)
+        {
+            var list = GetTransfertServices();
+            if (!list.Contains(name))
+            {
+                list.Add(name);
+                SaveLocal("transfert_services.json", list);
+                LogAction($"Nouveau service de transfert ajouté : {name}");
+            }
+        }
+
+        // 2. Gestion des Notes / Incidents (Entrées/Sorties de caisse)
+        public static List<OMNote> GetOMNotes() => LoadLocal<OMNote>("om_notes.json");
+
+        public static void SaveOMNote(OMNote item)
+        {
+            var list = GetOMNotes();
+            item.Id = list.Count > 0 ? list.Max(x => x.Id) + 1 : 1;
+            item.Agent = CurrentUser?.Nom ?? "Système";
+            list.Add(item);
+            SaveLocal("om_notes.json", list);
+            LogAction($"Note de caisse ajoutée : {item.Type} - {item.Montant} F ({item.Description})");
+        }
+
+        public static void DeleteOMNote(int id)
+        {
+            var list = GetOMNotes();
+            var item = list.FirstOrDefault(x => x.Id == id);
+            if (item != null)
+            {
+                list.Remove(item);
+                SaveLocal("om_notes.json", list);
+                LogAction($"Note de caisse supprimée : {item.Description}");
+            }
+        }
+
+        // 3. Gestion des Clôtures (Bilan de fin de journée)
+        public static List<OMCloture> GetOMClotures() => LoadLocal<OMCloture>("om_clotures.json");
+
+        public static void SaveOMCloture(OMCloture item)
+        {
+            var list = GetOMClotures();
+            item.Id = list.Count > 0 ? list.Max(x => x.Id) + 1 : 1;
+            item.Date = DateTime.Now;
+            item.Agent = CurrentUser?.Nom ?? "Système";
+            list.Add(item);
+            SaveLocal("om_clotures.json", list);
+            LogAction($"Clôture de caisse effectuée par {item.Agent}. Écart : {item.Ecart} F");
         }
     }
 }

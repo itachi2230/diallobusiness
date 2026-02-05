@@ -108,7 +108,7 @@ namespace Diallo_Business
                     break;
 
                 case "BtnFactures":
-                    // MainContainer.Content = new UC_Facturation(); // À créer
+                    MainContainer.Content = new UC_Transferts(); // À créer
                     break;
 
                 case "BtnBilans":

@@ -3,80 +3,174 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             mc:Ignorable="d" d:DesignHeight="700" d:DesignWidth="1000">
+             mc:Ignorable="d" d:DesignHeight="700" d:DesignWidth="1100">
 
-    <Grid Margin="20">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
+    <Grid Background="#0B1120" Margin="20" >
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="280"/>
+        </Grid.ColumnDefinitions>
 
-        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,20">
-            <TextBlock Text="Historique Complet" Foreground="White" FontSize="24" FontWeight="Bold" VerticalAlignment="Center"/>
-            <Button Content="🔄 Actualiser" Click="BtnRefresh_Click" Margin="30,0,0,0" Width="120" Height="35" Background="#1E293B" Foreground="#38BDF8"/>
-        </StackPanel>
+        <Grid Grid.Column="0" Margin="0,0,15,0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
 
-        <TabControl Grid.Row="1" Background="Transparent" BorderThickness="0">
+            <Border Grid.Row="0" Background="#151C2C" CornerRadius="10" Padding="10" Margin="0,0,0,10">
+                <WrapPanel VerticalAlignment="Center">
+                    <StackPanel Margin="0,0,12,0">
+                        <TextBlock Text="RECHERCHE" Foreground="#475569" FontSize="9" FontWeight="Bold" Margin="2,0,0,3"/>
+                        <TextBox x:Name="TxtSearch" Width="150" Height="28" FontSize="12" VerticalContentAlignment="Center" TextChanged="ApplyFilters_Changed"/>
+                    </StackPanel>
 
-            <TabItem Header="🛠 Services">
-                <DataGrid x:Name="GridServices" AutoGenerateColumns="False" CanUserAddRows="False" Background="#0F172A" BorderThickness="0" Foreground="White">
-                    <DataGrid.Columns>
-                        <DataGridTextColumn Header="Date" Binding="{Binding DateAction, StringFormat=dd/MM/yyyy}" Width="100"/>
-                        <DataGridTextColumn Header="Type" Binding="{Binding TypeService}" Width="*"/>
-                        <DataGridTextColumn Header="Client" Binding="{Binding NomClient}" Width="*"/>
-                        <DataGridTextColumn Header="Prix" Binding="{Binding Prix}" Width="100"/>
-                        <DataGridTextColumn Header="Payé" Binding="{Binding Accompte}" Width="100"/>
-                        <DataGridTextColumn Header="Reste" Binding="{Binding Reliquat}" Width="100"/>
-                        <DataGridTemplateColumn Header="Actions" Width="150">
-                            <DataGridTemplateColumn.CellTemplate>
-                                <DataTemplate>
-                                    <StackPanel Orientation="Horizontal">
-                                        <Button Content="✏️" Click="EditService_Click" Background="Transparent" BorderThickness="0" Margin="5,0"/>
-                                        <Button Content="🗑️" Click="DeleteService_Click" Background="Transparent" BorderThickness="0" Foreground="#EF4444"/>
-                                    </StackPanel>
-                                </DataTemplate>
-                            </DataGridTemplateColumn.CellTemplate>
-                        </DataGridTemplateColumn>
-                    </DataGrid.Columns>
-                </DataGrid>
-            </TabItem>
+                    <StackPanel Margin="0,0,12,0">
+                        <TextBlock Text="CATÉGORIE" Foreground="#475569" FontSize="9" FontWeight="Bold" Margin="2,0,0,3"/>
+                        <ComboBox x:Name="ComboType" Width="110" Height="28" FontSize="12" SelectionChanged="ApplyFilters_Changed">
+                            <ComboBoxItem Content="Tous" IsSelected="True"/>
+                            <ComboBoxItem Content="Services"/>
+                            <ComboBoxItem Content="Formations"/>
+                            <ComboBoxItem Content="Ventes"/>
+                        </ComboBox>
+                    </StackPanel>
 
-            <TabItem Header="🎓 Formations">
-                <DataGrid x:Name="GridFormations" AutoGenerateColumns="False" CanUserAddRows="False" Background="#0F172A">
-                    <DataGrid.Columns>
-                        <DataGridTextColumn Header="Étudiant" Binding="{Binding NomClient}" Width="*"/>
-                        <DataGridTextColumn Header="Prix" Binding="{Binding Prix}" Width="100"/>
-                        <DataGridTextColumn Header="Payé" Binding="{Binding Accompte}" Width="100"/>
-                        <DataGridTextColumn Header="Planning" Binding="{Binding Planification}" Width="*"/>
-                        <DataGridTextColumn Header="Statut" Binding="{Binding Statut}" Width="100"/>
-                        <DataGridTemplateColumn Header="Actions" Width="100">
-                            <DataGridTemplateColumn.CellTemplate>
-                                <DataTemplate>
-                                    <Button Content="🗑️" Click="DeleteFormation_Click" Background="Transparent" Foreground="#EF4444"/>
-                                </DataTemplate>
-                            </DataGridTemplateColumn.CellTemplate>
-                        </DataGridTemplateColumn>
-                    </DataGrid.Columns>
-                </DataGrid>
-            </TabItem>
+                    <StackPanel Margin="0,0,12,0">
+                        <TextBlock Text="PÉRIODE" Foreground="#475569" FontSize="9" FontWeight="Bold" Margin="2,0,0,3"/>
+                        <StackPanel Orientation="Horizontal">
+                            <ComboBox x:Name="ComboPeriode" Width="120" Height="28" FontSize="11" SelectionChanged="ComboPeriode_SelectionChanged">
+                                <ComboBoxItem Content="Tout" IsSelected="True"/>
+                                <ComboBoxItem Content="Aujourd'hui"/>
+                                <ComboBoxItem Content="Hier"/>
+                                <ComboBoxItem Content="Avant-hier"/>
+                                <ComboBoxItem Content="Il y a 3 jours"/>
+                                <ComboBoxItem Content="Il y a 4 jours"/>
+                                <ComboBoxItem Content="Il y a 5 jours"/>
+                                <ComboBoxItem Content="Cette Semaine"/>
+                                <ComboBoxItem Content="Ce Mois"/>
+                                <ComboBoxItem Content="Mois Passé"/>
+                                <ComboBoxItem Content="Mois Surpassé"/>
+                                <ComboBoxItem Content="Cette Année"/>
+                                <ComboBoxItem Content="Année Dernière"/>
+                                <ComboBoxItem Content="Choisir une date..."/>
+                            </ComboBox>
 
-            <TabItem Header="📦 Ventes Stock">
-                <DataGrid x:Name="GridVentes" AutoGenerateColumns="False" CanUserAddRows="False" Background="#0F172A">
-                    <DataGrid.Columns>
-                        <DataGridTextColumn Header="Date" Binding="{Binding Date, StringFormat=dd/MM/yyyy HH:mm}" Width="150"/>
-                        <DataGridTextColumn Header="Client" Binding="{Binding NomClient}" Width="*"/>
-                        <DataGridTextColumn Header="Total" Binding="{Binding MontantTotal}" Width="120"/>
-                        <DataGridTemplateColumn Header="Actions" Width="80">
-                            <DataGridTemplateColumn.CellTemplate>
-                                <DataTemplate>
-                                    <Button Content="🗑️" Click="DeleteVente_Click" Background="Transparent" Foreground="#EF4444"/>
-                                </DataTemplate>
-                            </DataGridTemplateColumn.CellTemplate>
-                        </DataGridTemplateColumn>
-                    </DataGrid.Columns>
-                </DataGrid>
-            </TabItem>
+                            <DatePicker x:Name="PickerDate" Width="100" Height="28" Margin="5,0,0,0" 
+                    Visibility="Collapsed" SelectedDateChanged="ApplyFilters_Changed"/>
+                        </StackPanel>
+                    </StackPanel>
 
-        </TabControl>
+                    <CheckBox x:Name="CheckReliquat" Content="Dettes" Foreground="#F87171" FontWeight="Bold" VerticalAlignment="Bottom" Margin="5,0,0,5" Click="ApplyFilters_Changed"/>
+                </WrapPanel>
+            </Border>
+
+            <DataGrid x:Name="GridGlobal" Grid.Row="1" AutoGenerateColumns="False" CanUserAddRows="False" 
+                      SelectionChanged="GridGlobal_SelectionChanged" Background="Transparent" BorderThickness="0" HorizontalScrollBarVisibility="Hidden"
+                      RowHeight="35" FontSize="12" GridLinesVisibility="None">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="DATE" Binding="{Binding Date, StringFormat=dd/MM}" Width="auto"/>
+
+                    <DataGridTemplateColumn Header="CATÉGORIE" Width="auto">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Border Padding="6,2" CornerRadius="4" HorizontalAlignment="Left"
+                                        Background="{Binding CategoryBrush}">
+                                    <TextBlock Text="{Binding Categorie}" FontSize="10" FontWeight="Bold" Foreground="White"/>
+                                </Border>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+
+                    <DataGridTextColumn Header="CLIENT" Binding="{Binding Client}" Width="*"/>
+                    <DataGridTextColumn Header="LIBELLÉ" Binding="{Binding Libelle}" Width="*"/>
+
+                    <DataGridTextColumn Header="TOTAL" Binding="{Binding MontantTotal, StringFormat={}{0:N0} F}" Width="90">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="HorizontalAlignment" Value="Right"/>
+                                <Setter Property="Margin" Value="0,0,10,0"/>
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+
+                    <DataGridTemplateColumn Header="RELIQUAT" Width="90">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Reliquat, StringFormat={}{0:N0} F}" 
+                                           Foreground="{Binding HasDebtColor}" FontWeight="Bold" HorizontalAlignment="Right" Margin="0,0,10,0"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+
+            <Border Grid.Row="2" Background="#151C2C" CornerRadius="10" Margin="0,10,0,0" Padding="12">
+                <UniformGrid Columns="3">
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                        <Ellipse Width="8" Height="8" Fill="#38BDF8" Margin="0,0,8,0"/>
+                        <TextBlock Text="CA: " Foreground="#94A3B8" FontSize="13"/>
+                        <TextBlock x:Name="TxtTotalCa" Text="0 F" Foreground="White" FontSize="14" FontWeight="Bold"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                        <Ellipse Width="8" Height="8" Fill="#4ADE80" Margin="0,0,8,0"/>
+                        <TextBlock Text="REÇU: " Foreground="#94A3B8" FontSize="13"/>
+                        <TextBlock x:Name="TxtTotalRecu" Text="0 F" Foreground="White" FontSize="14" FontWeight="Bold"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                        <Ellipse Width="8" Height="8" Fill="#F87171" Margin="0,0,8,0"/>
+                        <TextBlock Text="DETTES: " Foreground="#94A3B8" FontSize="13"/>
+                        <TextBlock x:Name="TxtTotalDettes" Text="0 F" Foreground="White" FontSize="14" FontWeight="Bold"/>
+                    </StackPanel>
+                </UniformGrid>
+            </Border>
+        </Grid>
+
+        <Border Grid.Column="1" Background="#151C2C" CornerRadius="12" Padding="15">
+            <Grid>
+                <TextBlock x:Name="PanelPlaceholder" Text="SÉLECTIONNEZ UNE LIGNE" Foreground="#334155" FontSize="11" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+
+                <StackPanel x:Name="PanelDetails" Visibility="Collapsed">
+                    <TextBlock Text="DÉTAILS" Foreground="#38BDF8" FontSize="14" FontWeight="Bold" Margin="0,0,0,15"/>
+
+                    <Border Background="#1E293B" CornerRadius="8" Padding="12" Margin="0,0,0,15">
+                        <StackPanel>
+                            <TextBlock x:Name="DetClient" Text="..." Foreground="White" FontSize="15" FontWeight="Bold"/>
+                            <TextBlock x:Name="DetLibelle" Text="..." Foreground="#94A3B8" FontSize="12" Margin="0,4,0,0" TextWrapping="Wrap"/>
+                        </StackPanel>
+                    </Border>
+
+                    <StackPanel Margin="2,0,0,15">
+                        <Grid Margin="0,4">
+                            <TextBlock Text="Montant Total" Foreground="#94A3B8" FontSize="12"/>
+                            <TextBlock x:Name="DetTotal" Text="0 F" HorizontalAlignment="Right" Foreground="White" FontSize="12" FontWeight="Bold"/>
+                        </Grid>
+                        <Grid Margin="0,4">
+                            <TextBlock Text="Déjà Payé" Foreground="#94A3B8" FontSize="12"/>
+                            <TextBlock x:Name="DetPaye" Text="0 F" HorizontalAlignment="Right" Foreground="#4ADE80" FontSize="12" FontWeight="Bold"/>
+                        </Grid>
+                        <Separator Background="#1E293B" Margin="0,8"/>
+                        <Grid Margin="0,4">
+                            <TextBlock Text="RESTE" Foreground="#F87171" FontSize="12" FontWeight="Bold"/>
+                            <TextBlock x:Name="DetReliquat" Text="0 F" HorizontalAlignment="Right" Foreground="#F87171" FontSize="14" FontWeight="Bold"/>
+                        </Grid>
+                    </StackPanel>
+
+                    <Button x:Name="BtnSolder" Content="SOLDER LE COMPTE" Click="BtnSolder_Click" Height="32" Background="#059669" Foreground="White" FontSize="11" FontWeight="Bold" Margin="0,0,0,8">
+                        <Button.Resources>
+                            <Style TargetType="Border">
+                                <Setter Property="CornerRadius" Value="6"/>
+                            </Style>
+                        </Button.Resources>
+                    </Button>
+                    <Button Content="SUPPRIMER" Click="BtnDelete_Click" Height="32" Background="Transparent" BorderBrush="#991B1B" BorderThickness="1" Foreground="#F87171" FontSize="11" FontWeight="Bold">
+                        <Button.Resources>
+                            <Style TargetType="Border">
+                                <Setter Property="CornerRadius" Value="6"/>
+                            </Style>
+                        </Button.Resources>
+                    </Button>
+                </StackPanel>
+            </Grid>
+        </Border>
     </Grid>
 </UserControl>
