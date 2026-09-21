@@ -62,11 +62,12 @@
                     HorizontalAlignment="Right" VerticalAlignment="Top" 
                     Margin="0,10,10,0" Width="40" Height="40"
                     Click="BtnToggle_Click" Panel.ZIndex="10"/>
-                        <Button Content="🏠   Dashboard" Style="{StaticResource SidebarButton}" x:Name="BtnDashboard" Click="NavClick"/>
-                        <Button Content="📦   Gestion Stock" Style="{StaticResource SidebarButton}" x:Name="BtnStock" Click="NavClick"/>
-                        <Button Content="🧾   Facturation" Style="{StaticResource SidebarButton}" x:Name="BtnFactures" Click="NavClick"/>
-                        <Button Content="📊   Bilans Financiers" Style="{StaticResource SidebarButton}" x:Name="BtnBilans" Click="NavClick"/>
-                        <Button Content="⚙️   Paramètres" Style="{StaticResource SidebarButton}" x:Name="BtnParametres" Click="NavClick"/>
+                        <Button Content="🏠   Dashboard" Style="{StaticResource SidebarButton}" x:Name="BtnDashboard" Tag="Dashboard" Click="NavClick"/>
+                        <Button Content="📦   Gestion Stock" Style="{StaticResource SidebarButton}" x:Name="BtnStock" Tag="Gestion Stock" Click="NavClick"/>
+                        <Button Content="🧾   Facturation" Style="{StaticResource SidebarButton}" x:Name="BtnFactures" Tag="Facturation" Click="NavClick"/>
+                        <Button Content="📊   Bilans Financiers" Style="{StaticResource SidebarButton}" x:Name="BtnBilans" Tag="Bilans Financiers" Click="NavClick"/>
+                        <Button Content="👥   Utilisateurs" Style="{StaticResource SidebarButton}" x:Name="BtnUtilisateurs" Tag="Utilisateurs" Click="NavClick"/>
+                        <Button Content="⚙️   Paramètres" Style="{StaticResource SidebarButton}" x:Name="BtnParametres" Tag="Paramètres" Click="NavClick"/>
                     </StackPanel>
 
                     <Border x:Name="UserCard" VerticalAlignment="Bottom" Background="#1E293B" CornerRadius="15" Margin="10,20" Padding="12">
@@ -74,12 +75,22 @@
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto"/>
                                 <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
                             <Ellipse Width="40" Height="40" Fill="#38BDF8"/>
                             <StackPanel x:Name="UserInfo" Grid.Column="1" VerticalAlignment="Center" Margin="10,0">
-                                <TextBlock Text="Admin" Foreground="White" FontWeight="Bold" FontSize="13"/>
-                                <TextBlock Text="Connecté" Foreground="#10B981" FontSize="10"/>
+                                <TextBlock x:Name="TxtUserName" Text="Invité" Foreground="White" FontWeight="Bold" FontSize="13"/>
+                                <TextBlock x:Name="TxtUserRole" Text="Non connecté" Foreground="#10B981" FontSize="10"/>
                             </StackPanel>
+                            <Button x:Name="BtnMonCompte" Grid.Column="2" Content="👤" Foreground="#38BDF8"
+                                    Background="Transparent" BorderThickness="0" FontSize="14"
+                                    Click="BtnMonCompte_Click" VerticalAlignment="Center" Cursor="Hand"
+                                    ToolTip="Mon compte (nom, identifiant, mot de passe)"/>
+                            <Button x:Name="BtnLogout" Grid.Column="3" Content="⏻" Foreground="#F87171"
+                                    Background="Transparent" BorderThickness="0" FontSize="16"
+                                    Click="BtnLogout_Click" VerticalAlignment="Center" Cursor="Hand"
+                                    ToolTip="Se déconnecter"/>
                         </Grid>
                     </Border>
                 </Grid>

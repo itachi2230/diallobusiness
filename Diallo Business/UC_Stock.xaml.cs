@@ -50,27 +50,36 @@ namespace Diallo_Business
                 MessageBox.Show("Le nom et le prix de vente sont obligatoires !");
                 return;
             }
-            try
+            // Parsing défensif : messages clairs au lieu d'exceptions brutales
+            if (!decimal.TryParse(InpPrixAchat.Text, out decimal prixAchat) || prixAchat < 0) prixAchat = 0;
+            if (!decimal.TryParse(InpPrixVente.Text, out decimal prixVente) || prixVente < 0)
             {
-                if (currentEditingArticle == null) currentEditingArticle = new Article();
-
-                currentEditingArticle.Nom = InpNom.Text;
-                currentEditingArticle.PrixAchat = decimal.Parse(InpPrixAchat.Text);
-                currentEditingArticle.PrixVente = decimal.Parse(InpPrixVente.Text);
-                currentEditingArticle.QuantiteDispo = int.Parse(InpQtite.Text);
-                currentEditingArticle.Type = (InpType.SelectedItem as ComboBoxItem)?.Content.ToString();
-                currentEditingArticle.DateAjout = DateTime.Now;
-
-                if (currentEditingArticle.Id == 0)
-                    Utils.SaveArticle(currentEditingArticle); // Nouveau
-                else
-                    Utils.UpdateArticle(currentEditingArticle); // Modif
-
-                RefreshGrid();
-                BtnCancel_Click(null, null);
-                MessageBox.Show("Stock mis à jour avec succès !");
+                MessageBox.Show("Prix de vente invalide !");
+                return;
             }
-            catch { MessageBox.Show("Veuillez vérifier les montants saisis."); }
+            if (!int.TryParse(InpQtite.Text, out int quantite) || quantite < 0)
+            {
+                MessageBox.Show("Quantité invalide !");
+                return;
+            }
+
+            if (currentEditingArticle == null) currentEditingArticle = new Article();
+
+            currentEditingArticle.Nom = InpNom.Text.Trim();
+            currentEditingArticle.PrixAchat = prixAchat;
+            currentEditingArticle.PrixVente = prixVente;
+            currentEditingArticle.QuantiteDispo = quantite;
+            currentEditingArticle.Type = (InpType.SelectedItem as ComboBoxItem)?.Content.ToString();
+            currentEditingArticle.DateAjout = DateTime.Now;
+
+            if (currentEditingArticle.Id == 0)
+                Utils.SaveArticle(currentEditingArticle); // Nouveau
+            else
+                Utils.UpdateArticle(currentEditingArticle); // Modif
+
+            RefreshGrid();
+            BtnCancel_Click(null, null);
+            MessageBox.Show("Stock mis à jour avec succès !");
         }
 
         // --- MODIFIER ---
@@ -85,6 +94,18 @@ namespace Diallo_Business
                 InpPrixAchat.Text = art.PrixAchat.ToString();
                 InpPrixVente.Text = art.PrixVente.ToString();
                 InpQtite.Text = art.QuantiteDispo.ToString();
+
+                // Restaurer aussi le type dans le ComboBox (correction du bug d'édition)
+                InpType.SelectedItem = null;
+                foreach (ComboBoxItem item in InpType.Items)
+                {
+                    if (item.Content.ToString() == art.Type)
+                    {
+                        InpType.SelectedItem = item;
+                        break;
+                    }
+                }
+
                 ColForm.Width = new GridLength(350);
             }
         }

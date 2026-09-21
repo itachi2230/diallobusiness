@@ -1,32 +1,53 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace Diallo_Business
 {
     public partial class MainWindow : Window
     {
         private bool isCollapsed = false;
+        private bool transitionSession = false; // true pendant une déconnexion / reconnexion
+
         public MainWindow()
         {
             InitializeComponent();
             this.MaxHeight = SystemParameters.MaximizedPrimaryScreenHeight;
 
+            AfficherUtilisateur();
+            AppliquerDroitsParRole();
+
             // Charger le Dashboard par défaut au démarrage
-            // Comme UC_Dashboard n'existe pas encore, on peut charger UC_Stock par défaut pour tester
-            MainContainer.Content = new UC_Stock();
-            TxtPageTitle.Text = "Gestion Stock";
+            MainContainer.Content = new UC_Dashboard();
+            TxtPageTitle.Text = "Dashboard";
+        }
+
+        // --- CARTE UTILISATEUR & DROITS PAR RÔLE ---
+        public void AfficherUtilisateur()
+        {
+            if (Utils.CurrentUser != null)
+            {
+                TxtUserName.Text = Utils.CurrentUser.Nom;
+                TxtUserRole.Text = Utils.CurrentUser.Role + " - " + Utils.CurrentUser.StatutAffiche;
+            }
+        }
+
+        // Les pages d'administration (Utilisateurs, Paramètres) sont réservées aux administrateurs
+        private void AppliquerDroitsParRole()
+        {
+            Visibility visibilite = Utils.EstAdmin ? Visibility.Visible : Visibility.Collapsed;
+            BtnUtilisateurs.Visibility = visibilite;
+            BtnParametres.Visibility = visibilite;
+        }
+
+        // --- FERMETURE DE LA FENÊTRE (ShutdownMode = OnExplicitShutdown) ---
+        protected override void OnClosing(CancelEventArgs e)
+        {
+            base.OnClosing(e);
+            // Pendant une déconnexion, une nouvelle fenêtre est déjà ouverte : on ne quitte pas l'application
+            if (!transitionSession) Application.Current.Shutdown();
         }
         private void BtnToggle_Click(object sender, RoutedEventArgs e)
         {
@@ -89,36 +110,92 @@ namespace Diallo_Business
         // --- MOTEUR DE NAVIGATION ---
         private void NavClick(object sender, RoutedEventArgs e)
         {
-            Button btn = sender as Button;
+            AfficherPage(sender as Button);
+        }
+
+        // Permet à une page (ex: UC_Parametres) de demander une navigation
+        public void NaviguerVers(string nomBouton)
+        {
+            Button[] boutons = { BtnDashboard, BtnStock, BtnFactures, BtnBilans, BtnUtilisateurs, BtnParametres };
+            foreach (var b in boutons)
+            {
+                if (b.Name == nomBouton) { AfficherPage(b); return; }
+            }
+        }
+
+        private void AfficherPage(Button btn)
+        {
             if (btn == null) return;
 
-            // Mise à jour visuelle du titre (on enlève l'émoji devant le texte)
-            string tag = btn.Content.ToString().Substring(3);
-            TxtPageTitle.Text = tag;
+            // Le titre vient du Tag (plus de découpe fragile du Content avec Substring)
+            TxtPageTitle.Text = btn.Tag?.ToString() ?? "";
 
             // Switch entre les UserControls
             switch (btn.Name)
             {
                 case "BtnDashboard":
-                    MainContainer.Content = new UC_Dashboard(); // À créer
+                    MainContainer.Content = new UC_Dashboard();
                     break;
 
                 case "BtnStock":
-                    MainContainer.Content = new UC_Stock(); // Déjà créé
+                    MainContainer.Content = new UC_Stock();
                     break;
 
                 case "BtnFactures":
-                    MainContainer.Content = new UC_Transferts(); // À créer
+                    MainContainer.Content = new UC_Facturation();
                     break;
 
                 case "BtnBilans":
-                    MainContainer.Content = new UC_Bilans(); // À créer
+                    MainContainer.Content = new UC_Bilans();
+                    break;
+
+                case "BtnUtilisateurs":
+                    if (!Utils.EstAdmin) { MessageBox.Show("Accès réservé aux administrateurs."); return; }
+                    MainContainer.Content = new UC_Utilisateurs();
                     break;
 
                 case "BtnParametres":
-                    // MainContainer.Content = new UC_Parametre(); // À créer
+                    if (!Utils.EstAdmin) { MessageBox.Show("Accès réservé aux administrateurs."); return; }
+                    MainContainer.Content = new UC_Parametres();
                     break;
             }
         }
+
+        // --- MON COMPTE (édition de son propre profil / mot de passe) ---
+        private void BtnMonCompte_Click(object sender, RoutedEventArgs e)
+        {
+            var fenetre = new Win_MonCompte { Owner = this };
+            if (fenetre.ShowDialog() == true)
+            {
+                AfficherUtilisateur();                 // nom/rôle mis à jour dans la carte utilisateur
+                AppliquerDroitsParRole();              // le rôle a pu changer
+                MainContainer.Content = new UC_Dashboard(); // rafraîchit la page courante
+                TxtPageTitle.Text = "Dashboard";
+            }
+        }
+
+        // --- DÉCONNEXION : retour à l'écran de login ---
+        private void BtnLogout_Click(object sender, RoutedEventArgs e)
+        {
+            if (MessageBox.Show("Voulez-vous vraiment vous déconnecter ?", "Déconnexion",
+                MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes) return;
+
+            Utils.Deconnecter();
+
+            transitionSession = true; // évite le Shutdown automatique en fermant cette fenêtre
+
+            var login = new Win_Login();
+            if (login.ShowDialog() == true && Utils.CurrentUser != null)
+            {
+                new MainWindow().Show(); // nouvelle session
+            }
+            this.Close();
+
+            // Si la reconnexion a échoué (l'utilisateur a fermé le login), on quitte proprement
+            if (Utils.CurrentUser == null) Application.Current.Shutdown();
+        }
+
+        // Permet à une page (ex: UC_Parametres) de demander la déconnexion
+        public void DemanderDeconnexion() => BtnLogout_Click(null, null);
     }
 }

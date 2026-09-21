@@ -65,6 +65,12 @@ namespace Diallo_Business
                     decimal total = decimal.TryParse(InpServiceTotal.Text, out decimal t) ? t : 0;
                     decimal paye = decimal.TryParse(InpServiceAvance.Text, out decimal p) ? p : 0;
 
+                    // Validations (bug corrigé : contrôles métier avant enregistrement)
+                    if (string.IsNullOrWhiteSpace(typeS) || total <= 0)
+                    { MessageBox.Show("Indiquez le type de service et un montant total supérieur à 0."); return; }
+                    if (paye < 0 || paye > total)
+                    { MessageBox.Show("L'acompte doit être compris entre 0 et le total."); return; }
+
                     Service s = new Service
                     {
                         TypeService = typeS,
@@ -88,6 +94,12 @@ namespace Diallo_Business
                     decimal prixTotal = decimal.TryParse(InpFormPrixTotal.Text, out decimal pt) ? pt : 0;
                     decimal accompte = decimal.TryParse(InpFormAccompte.Text, out decimal acc) ? acc : 0;
 
+                    // Validations (bug corrigé)
+                    if (string.IsNullOrWhiteSpace(InpFormNomClient.Text) || prixTotal <= 0)
+                    { MessageBox.Show("Indiquez le nom de l'élève et un prix total supérieur à 0."); return; }
+                    if (accompte < 0 || accompte > prixTotal)
+                    { MessageBox.Show("L'acompte doit être compris entre 0 et le prix total."); return; }
+
                     Formation f = new Formation
                     {
                         Nom = "Formation Standard", // Tu peux changer selon le module choisi
@@ -97,6 +109,7 @@ namespace Diallo_Business
                         Reliquat = prixTotal - accompte, // Calcul automatique du reste à payer
                         Planification = InpFormPlanif.Text,
                         Statut = "En cours",
+                        Date = DateTime.Now, // Date d'inscription (utilisée par les Bilans)
                         IdUtilisateur = Utils.CurrentUser?.Id ?? 0
                     };
 
@@ -107,11 +120,16 @@ namespace Diallo_Business
                 // 3. GESTION DES FLUX (ENTRÉE/SORTIE)
                 else if (choice.Contains("Flux"))
                 {
+                    // Bug corrigé : parsing sécurisé + montant obligatoire
+                    decimal montantFlux = decimal.TryParse(InpFluxMontant.Text, out decimal mf) ? mf : 0;
+                    if (montantFlux <= 0)
+                    { MessageBox.Show("Indiquez un montant supérieur à 0."); return; }
+
                     FluxDivers flux = new FluxDivers
                     {
                         Type = (InpFluxType.SelectedItem as ComboBoxItem)?.Content.ToString().ToUpper(),
                         Motif = InpFluxMotif.Text,
-                        Montant = decimal.Parse(InpFluxMontant.Text),
+                        Montant = montantFlux,
                         Date = DateTime.Now
                     };
 
@@ -122,7 +140,12 @@ namespace Diallo_Business
                 {
                     if (InpArtSelection.SelectedItem is Article art)
                     {
-                        int qteVendre = int.Parse(InpArtQte.Text);
+                        // Bug corrigé : parsing sécurisé de la quantité
+                        if (!int.TryParse(InpArtQte.Text, out int qteVendre) || qteVendre <= 0)
+                        {
+                            MessageBox.Show("Quantité invalide.");
+                            return;
+                        }
 
                         // 1. Vérifier si le stock est suffisant
                         if (art.QuantiteDispo < qteVendre)
@@ -165,7 +188,9 @@ namespace Diallo_Business
         private void ClearInputs()
         {
             InpServiceTotal.Text = ""; InpServiceAvance.Text = ""; InpServiceClient.Text = "";
-            InpFormAccompte.Text = ""; InpFormNomClient.Text = ""; InpFluxMontant.Text = "";
+            InpFormPrixTotal.Text = ""; InpFormAccompte.Text = ""; InpFormNomClient.Text = ""; InpFormPlanif.Text = "";
+            InpFluxMontant.Text = ""; InpFluxMotif.Text = "";
+            InpArtQte.Text = "1"; InpArtClient.Text = "";
         }
         private void InpArtSelection_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {

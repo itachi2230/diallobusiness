@@ -2,7 +2,10 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:Diallo_Business"
-             StartupUri="MainWindow.xaml">
+             ShutdownMode="OnExplicitShutdown">
+    <!-- NOTE : le StartupUri a été retiré — App.xaml.cs affiche Win_Login puis MainWindow.
+         ShutdownMode=OnExplicitShutdown est INDISPENSABLE : sinon WPF ferme l'application
+         dès que la dernière fenêtre se ferme (fin du dialogue de connexion) → fermeture subite. -->
     <Application.Resources>
         <SolidColorBrush x:Key="PrimaryBlue" Color="#38BDF8"/>
         <SolidColorBrush x:Key="DeepBg" Color="#0B1120"/>
@@ -79,6 +82,15 @@
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
+        </Style>
+        <Style TargetType="PasswordBox">
+            <Setter Property="Background" Value="#1E293B"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderBrush" Value="#334155"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="10,5"/>
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
         </Style>
         <Style TargetType="DataGrid">
             <Setter Property="Background" Value="Transparent"/>

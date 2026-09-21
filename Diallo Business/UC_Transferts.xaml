@@ -15,7 +15,9 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
+                <RowDefinition Height="1.2*"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="0.8*"/>
             </Grid.RowDefinitions>
 
             <TextBlock Text="MOUVEMENTS DE CAISSE (HORS TRANSFERTS)" Foreground="#38BDF8" FontSize="16" FontWeight="Bold" Margin="0,0,0,15"/>
@@ -57,6 +59,41 @@
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <Button Content="🗑️" Click="BtnDeleteNote_Click" Background="Transparent" BorderThickness="0" Foreground="Red"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+
+            <!-- FLUX DIVERS : consultation des entrées/sorties enregistrées depuis le Dashboard -->
+            <TextBlock Grid.Row="3" Text="FLUX DIVERS (AUTRES ENTRÉES / SORTIES)" Foreground="#A855F7" FontSize="14" FontWeight="Bold" Margin="0,18,0,10"/>
+            <DataGrid x:Name="GridFlux" Grid.Row="4" AutoGenerateColumns="False" Background="Transparent" BorderThickness="0" CanUserAddRows="False">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="DATE" Binding="{Binding Date, StringFormat=dd/MM HH:mm}" Width="110"/>
+                    <DataGridTemplateColumn Header="TYPE" Width="80">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Type}" FontWeight="Bold">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Foreground" Value="#F87171"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding Type}" Value="ENTREE">
+                                                    <Setter Property="Foreground" Value="#4ADE80"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTextColumn Header="MONTANT" Binding="{Binding Montant, StringFormat={}{0:N0} F}" Width="110"/>
+                    <DataGridTextColumn Header="MOTIF" Binding="{Binding Motif}" Width="*"/>
+                    <DataGridTemplateColumn Width="50">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Button Content="🗑️" Click="BtnDeleteFlux_Click" Background="Transparent" BorderThickness="0" Foreground="Red"/>
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>

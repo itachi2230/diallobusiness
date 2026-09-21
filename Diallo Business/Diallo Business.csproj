@@ -48,6 +48,8 @@
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Net.Http" />
+    <Reference Include="System.Printing" />
+    <Reference Include="ReachFramework" />
     <Reference Include="System.Xaml">
       <RequiredTargetFramework>4.0</RequiredTargetFramework>
     </Reference>
@@ -71,6 +73,24 @@
     </Compile>
     <Compile Include="UC_Transferts.xaml.cs">
       <DependentUpon>UC_Transferts.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UC_Facturation.xaml.cs">
+      <DependentUpon>UC_Facturation.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UC_Parametres.xaml.cs">
+      <DependentUpon>UC_Parametres.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Win_Login.xaml.cs">
+      <DependentUpon>Win_Login.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Win_Register.xaml.cs">
+      <DependentUpon>Win_Register.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Win_MonCompte.xaml.cs">
+      <DependentUpon>Win_MonCompte.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UC_Utilisateurs.xaml.cs">
+      <DependentUpon>UC_Utilisateurs.xaml</DependentUpon>
     </Compile>
     <Compile Include="Utils.cs" />
     <Page Include="MainWindow.xaml">
@@ -98,6 +118,30 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="UC_Transferts.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UC_Facturation.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UC_Parametres.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Win_Login.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Win_Register.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Win_MonCompte.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UC_Utilisateurs.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -129,9 +173,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="TextFile1.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

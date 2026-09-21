@@ -1,0 +1,25 @@
+# Règles projet — Diallo Business
+
+## 🗺 Document de référence : `map.md`
+- **`Diallo Business/map.md` est la carte complète du projet** (but, technos, architecture, fonctionnalités détaillées, map des fichiers, conventions, design system, problèmes connus).
+- **CONSULTER `map.md` AVANT toute modification** du code : il indique où se trouve chaque chose et comment intervenir proprement.
+- **APRÈS toute modification pertinente, METTRE À JOUR `map.md`** pour qu'il reflète l'état réel du code :
+  - §5 Map des fichiers (nouveau/supprimé/renommé),
+  - §6 Détail fichier par fichier (nouveaux membres, nouvelles classes),
+  - §7 Persistance (nouveau fichier JSON, nouveau modèle),
+  - §8 Fonctionnalités détaillées (nouvelle fonctionnalité, écran ajouté/modifié),
+  - §10 Conventions/recettes (nouvelle convention, nouvelle recette),
+  - §11 Problèmes connus (bug corrigé → le retirer ; nouveau bug → l'ajouter),
+  - §12 TL;DR si l'architecture change.
+- Une mise à jour de la map n'est PAS nécessaire pour les micro-changements cosmétiques sans impact (texte de bouton, marge, etc.).
+
+## Règles de code (détails dans map.md §9 et §10)
+- **Stack** : WPF .NET Framework 4.7.2, C# code-behind (pas de MVVM), Newtonsoft.Json, AUCUNE base de données.
+- **Langue** : identifiants, commentaires et UI entièrement en **français**.
+- **Données** : accès aux données UNIQUEMENT via la classe statique `Utils` (JSON dans `bin\Debug\LocalData`). Jamais d'IO direct dans les UserControls.
+- **Traçabilité** : appeler `Utils.LogAction("...")` après toute opération métier significative (préfixes `[SERVICE]`, `[FORMATION]`, `[VENTE]`, `[FLUX]`).
+- **Thème sombre** : respecter la palette de map.md §9 (PrimaryBlue `#38BDF8`, DeepBg `#0B1120`, CardBg `#151C2C`, AccentViolet `#7000FF`, surface `#0F172A`, alerte `#F87171`, succès `#4ADE80`). Styles globaux dans `App.xaml`.
+- **Nouvelle page** = `UC_Xxx.xaml` + `UC_Xxx.xaml.cs` déclaré dans le `.csproj` (Page + Compile), branché dans `MainWindow.NavClick` (bouton avec `Tag` = titre de page), puis documentée dans `map.md`.
+- **Connexion obligatoire** : l'app démarre sur `Win_Login` (App.xaml.cs OnStartup) ; `Utils.CurrentUser` doit être renseigné ; ne jamais contourner l'écran de connexion.
+- **Parsing** : utiliser `TryParse` avec messages clairs — jamais `Parse` brut dans les handlers.
+- **Build** : MSBuild VS2019 — `C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\Current\Bin\MSBuild.exe` sur le `.csproj` ou la `.sln` (Configuration=Debug). Toujours compiler avant de conclure qu'un changement fonctionne.

@@ -1,0 +1,50 @@
+<Window x:Class="Diallo_Business.Win_MonCompte"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Mon compte - Diallo Business" Height="660" Width="460"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent"
+        WindowStartupLocation="CenterOwner" ResizeMode="NoResize">
+
+    <Border Background="#0B1120" CornerRadius="20" BorderBrush="#1E293B" BorderThickness="1" Margin="20">
+        <Grid>
+            <Grid Height="40" VerticalAlignment="Top" Background="Transparent" MouseLeftButtonDown="Window_MouseLeftButtonDown">
+                <Button Content="✕" HorizontalAlignment="Right" VerticalAlignment="Center" Width="40" Height="30"
+                        Margin="0,0,10,0" Background="Transparent" BorderThickness="0" Foreground="#94A3B8"
+                        FontSize="14" Click="BtnFermer_Click" ToolTip="Fermer"/>
+            </Grid>
+
+            <ScrollViewer Margin="30,20,30,20" VerticalScrollBarVisibility="Auto">
+                <StackPanel>
+                    <TextBlock Text="MON COMPTE" Foreground="#38BDF8" FontSize="20" FontWeight="Bold"/>
+                    <TextBlock x:Name="TxtEntete" Text="" Foreground="#94A3B8" FontSize="11" Margin="0,6,0,0" TextWrapping="Wrap"/>
+
+                    <Separator Background="#1E293B" Margin="0,15,0,15"/>
+
+                    <TextBlock Text="INFORMATIONS" Foreground="#94A3B8" FontSize="11" FontWeight="Bold"/>
+                    <TextBlock Text="Nom complet" Margin="0,8,0,0"/>
+                    <TextBox x:Name="InpNom" Margin="0,5,0,12"/>
+                    <TextBlock Text="Identifiant"/>
+                    <TextBox x:Name="InpUsername" Margin="0,5,0,0"/>
+
+                    <Separator Background="#1E293B" Margin="0,18,0,15"/>
+
+                    <TextBlock Text="CHANGER LE MOT DE PASSE (optionnel)" Foreground="#94A3B8" FontSize="11" FontWeight="Bold"/>
+                    <TextBlock Text="Mot de passe actuel" Margin="0,8,0,0"/>
+                    <PasswordBox x:Name="InpAncien" Margin="0,5,0,12"/>
+                    <TextBlock Text="Nouveau mot de passe (min. 6 caractères)"/>
+                    <PasswordBox x:Name="InpNouveau" Margin="0,5,0,12"/>
+                    <TextBlock Text="Confirmer le nouveau mot de passe"/>
+                    <PasswordBox x:Name="InpConfirm" Margin="0,5,0,0" KeyDown="InpConfirm_KeyDown"/>
+
+                    <TextBlock x:Name="TxtMessage" Text="" Foreground="#F87171" FontSize="12" TextWrapping="Wrap"
+                               Visibility="Collapsed" Margin="0,12,0,0"/>
+
+                    <UniformGrid Columns="2" Height="42" Margin="0,18,0,0">
+                        <Button Content="Fermer" Click="BtnFermer_Click" Background="#475569" Margin="0,0,5,0"/>
+                        <Button Content="Enregistrer" Click="BtnEnregistrer_Click" Background="#38BDF8" Foreground="#0B1120" Margin="5,0,0,0"/>
+                    </UniformGrid>
+                </StackPanel>
+            </ScrollViewer>
+        </Grid>
+    </Border>
+</Window>

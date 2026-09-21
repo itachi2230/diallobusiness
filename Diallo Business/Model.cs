@@ -9,8 +9,21 @@ namespace DialloBusinessCenter.Models
         public int Id { get; set; }
         public string Nom { get; set; }
         public string Username { get; set; }
-        public string MotDePasse { get; set; } // Haché de préférence
-        public string Role { get; set; } // Admin, Agent, etc.
+        public string MotDePasse { get; set; } // Haché en SHA-256 par Utils.HashPassword (jamais en clair)
+        public string Role { get; set; } // Admin, Agent
+        public string Statut { get; set; } // Actif, En attente, Désactivé
+        public DateTime DateCreation { get; set; }
+        public DateTime? DerniereConnexion { get; set; }
+
+        // Compatibilité ascendante : les comptes créés avant l'ajout des statuts (Statut vide)
+        // sont considérés comme actifs — sinon l'admin existant serait verrouillé hors de l'app.
+        public bool EstActif => string.IsNullOrEmpty(Statut) || Statut == "Actif";
+        public string StatutAffiche => string.IsNullOrEmpty(Statut) ? "Actif" : Statut;
+        public string StatutColor => StatutAffiche == "Actif" ? "#4ADE80"
+                                   : (StatutAffiche == "En attente" ? "#F59E0B" : "#F87171");
+        public string DerniereConnexionAffiche => DerniereConnexion.HasValue
+            ? DerniereConnexion.Value.ToString("dd/MM/yyyy HH:mm")
+            : "Jamais";
     }
 
     // --- CLASSE ARTICLE (STOCK PHYSIQUE) ---
@@ -56,6 +69,7 @@ namespace DialloBusinessCenter.Models
         public string TelephoneClient { get; set; }
         public string Planification { get; set; } // Ex: "Lundi-Mercredi 14h-16h"
         public string Statut { get; set; } // En cours, Achevé, Annulé
+        public DateTime Date { get; set; } // Date d'inscription (fallback Now si absent des anciens JSON)
     }
 
     // --- CLASSE FACTURE & ELEMENTS ---
@@ -70,6 +84,9 @@ namespace DialloBusinessCenter.Models
         public DateTime Date { get; set; }
         public decimal Accompte { get; set; }
         public decimal Reliquat { get; set; }
+
+        // Couleur du reliquat pour les DataGrid (rouge si dette, vert si soldé)
+        public string HasDebtColor => Reliquat > 0 ? "#F87171" : "#4ADE80";
     }
 
     public class ElementFacture

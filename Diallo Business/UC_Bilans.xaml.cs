@@ -82,7 +82,7 @@ namespace Diallo_Business
                     allRows.AddRange(formations.Where(f => f != null).Select(f => new BilanRow
                     {
                         Id = f.Id,
-                        Date = DateTime.Now, // À remplacer par f.Date si dispo dans le modèle
+                        Date = f.Date != default ? f.Date : DateTime.Now, // Date d'inscription (champ Date ajouté au modèle, fallback pour anciens JSON)
                         Categorie = "FORMATION",
                         Libelle = f.Nom ?? "Formation",
                         Client = f.NomClient ?? "Élève",
@@ -235,9 +235,10 @@ namespace Diallo_Business
                 if (MessageBox.Show($"Confirmer le règlement de {row.Reliquat:N0} F ?", "Paiement", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
                 {
                     if (row.SourceObject is Service s) { s.Accompte += s.Reliquat; s.Reliquat = 0; Utils.UpdateService(s); }
-                    else if (row.SourceObject is Formation f) { f.Accompte += f.Reliquat; f.Reliquat = 0; Utils.UpdateFormation(f); }
+                    else if (row.SourceObject is Formation f) { f.Accompte += f.Reliquat; f.Reliquat = 0; f.Statut = "Achevé"; Utils.UpdateFormation(f); }
                     else if (row.SourceObject is Facture v) { v.Accompte += v.Reliquat; v.Reliquat = 0; Utils.UpdateFacture(v); }
 
+                    Utils.LogAction($"Compte soldé : {row.Categorie} #{row.Id} ({row.Client}) — {row.Reliquat:N0} F");
                     LoadData();
                 }
             }
@@ -268,12 +269,9 @@ namespace Diallo_Business
             }
         }
 
-        private void ApplyFilters_Changed(object sender, RoutedEventArgs e) => ApplyFilters();
-
-        // Pour les ComboBox qui utilisent SelectionChangedEventArgs
-        private void ApplyFilters_Changed(object sender, SelectionChangedEventArgs e) => ApplyFilters();
-
-        // Pour le TextBox qui utilise TextChangedEventArgs
-        private void ApplyFilters_Changed(object sender, TextChangedEventArgs e) => ApplyFilters();
+        // Un handler distinct par type d'événement (les 3 surcharges ambiguës ApplyFilters_Changed ont été supprimées)
+        private void ApplyFilters_Click(object sender, RoutedEventArgs e) => ApplyFilters();
+        private void ApplyFilters_SelectionChanged(object sender, SelectionChangedEventArgs e) => ApplyFilters();
+        private void ApplyFilters_TextChanged(object sender, TextChangedEventArgs e) => ApplyFilters();
     }
 }

@@ -42,6 +42,7 @@ namespace Diallo_Business
             item.IdUtilisateur = CurrentUser?.Id ?? 0;
             list.Add(item);
             SaveLocal("articles.json", list);
+            LogAction($"Article ajouté : {item.Nom} ({item.PrixVente:N0} F)");
         }
         public static void UpdateArticle(Article updatedItem)
         {
@@ -72,6 +73,16 @@ namespace Diallo_Business
             {
                 liste.Add(nomService);
                 SaveLocal("liste_services.json", liste);
+            }
+        }
+
+        public static void DeleteServiceFromList(string nomService)
+        {
+            var liste = GetListeServices();
+            if (liste.Remove(nomService))
+            {
+                SaveLocal("liste_services.json", liste);
+                LogAction("Service retiré de la liste : " + nomService);
             }
         }
         public static void DeleteArticle(int id)
@@ -201,8 +212,18 @@ namespace Diallo_Business
             item.Id = list.Count > 0 ? list.Max(x => x.Id) + 1 : 1;
             item.IdUtilisateur = CurrentUser?.Id ?? 0;
             item.Date = DateTime.Now;
+
+            // Attribuer les identifiants des lignes (ElementFacture) rattachées à cette facture
+            int nextElementId = list.SelectMany(f => f.Elements).Select(e => e.Id).DefaultIfEmpty(0).Max() + 1;
+            foreach (var element in item.Elements)
+            {
+                element.IdFacture = item.Id;
+                element.Id = nextElementId++;
+            }
+
             list.Add(item);
             SaveLocal("factures.json", list);
+            LogAction($"Facture créée : ID {item.Id} (Client: {item.NomClient}, Montant: {item.MontantTotal:N0} F)");
         }
         public static void UpdateFacture(Facture updatedItem)
         {
@@ -255,6 +276,16 @@ namespace Diallo_Business
             }
         }
 
+        public static void DeleteTransfertService(string name)
+        {
+            var list = GetTransfertServices();
+            if (list.Remove(name))
+            {
+                SaveLocal("transfert_services.json", list);
+                LogAction("Moyen d'encaissement retiré : " + name);
+            }
+        }
+
         // 2. Gestion des Notes / Incidents (Entrées/Sorties de caisse)
         public static List<OMNote> GetOMNotes() => LoadLocal<OMNote>("om_notes.json");
 
@@ -292,6 +323,195 @@ namespace Diallo_Business
             list.Add(item);
             SaveLocal("om_clotures.json", list);
             LogAction($"Clôture de caisse effectuée par {item.Agent}. Écart : {item.Ecart} F");
+        }
+
+        // --- GESTION DES UTILISATEURS ---
+        public static List<Utilisateur> GetUtilisateurs() => LoadLocal<Utilisateur>("utilisateurs.json");
+
+        // Hachage SHA-256 (le modèle recommande de ne jamais stocker le mot de passe en clair)
+        public static string HashPassword(string motDePasse)
+        {
+            using (var sha = System.Security.Cryptography.SHA256.Create())
+            {
+                byte[] bytes = sha.ComputeHash(System.Text.Encoding.UTF8.GetBytes(motDePasse ?? string.Empty));
+                var sb = new System.Text.StringBuilder();
+                foreach (byte b in bytes) sb.Append(b.ToString("x2"));
+                return sb.ToString();
+            }
+        }
+
+        // Crée le compte administrateur par défaut au premier lancement et RÉPARE les comptes hérités
+        public static void EnsureDefaultAdmin()
+        {
+            var list = GetUtilisateurs();
+            bool modifie = false;
+
+            if (list.Count == 0)
+            {
+                list.Add(new Utilisateur
+                {
+                    Id = 1,
+                    Nom = "Administrateur",
+                    Username = "admin",
+                    MotDePasse = HashPassword("admin123"),
+                    Role = "Admin",
+                    Statut = "Actif",
+                    DateCreation = DateTime.Now
+                });
+                modifie = true;
+                LogAction("Compte administrateur par défaut créé (admin / admin123) — pensez à changer le mot de passe.");
+            }
+
+            // Compatibilité : les comptes créés avant l'ajout des statuts (Statut vide) sont activés
+            foreach (var u in list.Where(x => string.IsNullOrEmpty(x.Statut)))
+            {
+                u.Statut = "Actif";
+                modifie = true;
+            }
+
+            // Sécurité : il doit toujours exister au moins un administrateur actif
+            if (list.Count > 0 && !list.Any(u => u.Role == "Admin" && u.EstActif))
+            {
+                list[0].Role = "Admin";
+                list[0].Statut = "Actif";
+                modifie = true;
+                LogAction("Aucun administrateur actif détecté : le premier compte a été promu administrateur actif.");
+            }
+
+            if (modifie) SaveLocal("utilisateurs.json", list);
+        }
+
+        public static void SaveUtilisateur(Utilisateur item)
+        {
+            var list = GetUtilisateurs();
+            item.Id = list.Count > 0 ? list.Max(x => x.Id) + 1 : 1;
+            list.Add(item);
+            SaveLocal("utilisateurs.json", list);
+            LogAction($"Utilisateur créé : {item.Nom} ({item.Username}, {item.Role})");
+        }
+
+        public static void UpdateUtilisateur(Utilisateur updatedItem)
+        {
+            var list = GetUtilisateurs();
+            var index = list.FindIndex(x => x.Id == updatedItem.Id);
+            if (index != -1)
+            {
+                list[index] = updatedItem;
+                SaveLocal("utilisateurs.json", list);
+                LogAction($"Utilisateur modifié : {updatedItem.Nom} ({updatedItem.Username})");
+            }
+        }
+
+        public static void DeleteUtilisateur(int id)
+        {
+            var list = GetUtilisateurs();
+            var item = list.FirstOrDefault(x => x.Id == id);
+            if (item != null)
+            {
+                list.Remove(item);
+                SaveLocal("utilisateurs.json", list);
+                LogAction($"Utilisateur supprimé : {item.Nom} ({item.Username})");
+            }
+        }
+
+        // --- SESSION & AIDE À LA DÉCISION ---
+
+        // L'utilisateur connecté est-il administrateur ?
+        public static bool EstAdmin => CurrentUser != null && CurrentUser.Role == "Admin";
+
+        // Nombre d'administrateurs ACTIFS (garde-fou : il doit toujours en rester au moins un)
+        public static int NombreAdminsActifs() =>
+            GetUtilisateurs().Count(u => u.Role == "Admin" && u.EstActif);
+
+        public static Utilisateur GetUtilisateurParUsername(string username) =>
+            GetUtilisateurs().FirstOrDefault(u => u.Username != null &&
+                                                  u.Username.Equals(username, StringComparison.OrdinalIgnoreCase));
+
+        public static Utilisateur GetUtilisateurParId(int id) =>
+            GetUtilisateurs().FirstOrDefault(u => u.Id == id);
+
+        // Active / désactive / remet en attente un compte (page admin dédiée)
+        public static void ChangerStatutUtilisateur(int id, string nouveauStatut)
+        {
+            var list = GetUtilisateurs();
+            var user = list.FirstOrDefault(u => u.Id == id);
+            if (user == null) return;
+
+            user.Statut = nouveauStatut;
+            SaveLocal("utilisateurs.json", list);
+            LogAction($"Compte {nouveauStatut} : {user.Nom} ({user.Username})");
+        }
+
+        // Réinitialise le mot de passe d'un compte (action administrateur)
+        public static void ReinitialiserMotDePasse(int id, string nouveauMotDePasse)
+        {
+            var list = GetUtilisateurs();
+            var user = list.FirstOrDefault(u => u.Id == id);
+            if (user == null) return;
+
+            user.MotDePasse = HashPassword(nouveauMotDePasse);
+            SaveLocal("utilisateurs.json", list);
+            LogAction($"Mot de passe réinitialisé par {CurrentUser?.Nom ?? "?"} pour {user.Username}");
+        }
+
+        // Met à jour la date de dernière connexion (sans polluer le journal d'activité)
+        public static void EnregistrerConnexion(int id)
+        {
+            var list = GetUtilisateurs();
+            var user = list.FirstOrDefault(u => u.Id == id);
+            if (user == null) return;
+
+            user.DerniereConnexion = DateTime.Now;
+            SaveLocal("utilisateurs.json", list);
+        }
+
+        // Ferme la session en cours
+        public static void Deconnecter()
+        {
+            if (CurrentUser != null) LogAction("Déconnexion de " + CurrentUser.Nom);
+            CurrentUser = null;
+        }
+
+        // Le compte utilise-t-il encore le mot de passe par défaut ?
+        public static bool MotDePasseParDefaut(Utilisateur u) =>
+            u != null && !string.IsNullOrEmpty(u.Username) &&
+            u.Username.Equals("admin", StringComparison.OrdinalIgnoreCase) &&
+            u.MotDePasse == HashPassword("admin123");
+
+        // --- SAUVEGARDE DES DONNÉES (LocalData\Backups) ---
+        // Copie tous les fichiers JSON de LocalData dans un dossier horodaté. Retourne le chemin créé.
+        public static string BackupData()
+        {
+            string backupRoot = Path.Combine(folderPath, "Backups");
+            if (!Directory.Exists(backupRoot)) Directory.CreateDirectory(backupRoot);
+
+            string destination = Path.Combine(backupRoot, "backup_" + DateTime.Now.ToString("yyyy_MM_dd_HHmmss"));
+            Directory.CreateDirectory(destination);
+
+            foreach (string file in Directory.GetFiles(folderPath, "*.json"))
+                File.Copy(file, Path.Combine(destination, Path.GetFileName(file)));
+
+            LogAction("Sauvegarde des données effectuée : " + destination);
+            return destination;
+        }
+
+        // Crée une sauvegarde une fois par jour (au premier lancement de la journée)
+        public static void AutoBackupDaily()
+        {
+            try
+            {
+                string backupRoot = Path.Combine(folderPath, "Backups");
+                string prefix = "backup_" + DateTime.Now.ToString("yyyy_MM_dd");
+                if (!Directory.Exists(backupRoot) ||
+                    !Directory.GetDirectories(backupRoot).Any(d => Path.GetFileName(d).StartsWith(prefix)))
+                {
+                    BackupData();
+                }
+            }
+            catch
+            {
+                // Ne jamais bloquer le démarrage si la sauvegarde échoue
+            }
         }
     }
 }

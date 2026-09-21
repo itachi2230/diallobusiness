@@ -13,12 +13,14 @@ namespace Diallo_Business
         private List<string> listeServices;
         private Dictionary<string, TextBox> inputs = new Dictionary<string, TextBox>();
         private List<OMNote> notesDuJour = new List<OMNote>();
+        private List<FluxDivers> fluxRecents = new List<FluxDivers>();
 
         public UC_Transferts()
         {
             InitializeComponent();
             ChargerConfig();
             LoadDailyData();
+            LoadFlux();
         }
 
         private void ChargerConfig()
@@ -71,6 +73,10 @@ namespace Diallo_Business
                 TxtNoteMontant.Clear(); TxtNoteLibelle.Clear();
                 LoadDailyData();
             }
+            else
+            {
+                MessageBox.Show("Montant invalide.");
+            }
         }
 
         private void BtnCalculer_Click(object sender, RoutedEventArgs e)
@@ -100,19 +106,28 @@ namespace Diallo_Business
             else if (ecart > 0) { BorderResultat.Background = Brushes.Teal; TxtMsgEcart.Text = "Surplus (Argent en trop)"; }
             else { BorderResultat.Background = Brushes.DarkRed; TxtMsgEcart.Text = "Manquant (Argent perdu)"; }
 
-            // Sauvegarde de la clôture
-            if (MessageBox.Show("Voulez-vous enregistrer cette clôture pour aujourd'hui ?", "Confirmation", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
-            {
-                Utils.SaveOMCloture(new OMCloture
+                // Sauvegarde de la clôture (bug corrigé : SoldeTheorique et Details désormais persistés)
+                if (MessageBox.Show("Voulez-vous enregistrer cette clôture pour aujourd'hui ?", "Confirmation", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
                 {
-                    Date = DateTime.Now,
-                    SoldeHier = soldeHier,
-                    SoldePhysiqueTotal = totalPhysique,
-                    Ecart = ecart,
-                    Agent = Utils.CurrentUser?.Nom
-                });
+                    var details = new Dictionary<string, decimal>();
+                    foreach (var entry in inputs)
+                    {
+                        decimal.TryParse(entry.Value.Text, out decimal montantMoyen);
+                        details.Add(entry.Key, montantMoyen);
+                    }
+
+                    Utils.SaveOMCloture(new OMCloture
+                    {
+                        Date = DateTime.Now,
+                        SoldeHier = soldeHier,
+                        SoldeTheorique = soldeTheorique,
+                        SoldePhysiqueTotal = totalPhysique,
+                        Ecart = ecart,
+                        Agent = Utils.CurrentUser?.Nom,
+                        Details = details
+                    });
+                }
             }
-        }
 
         private void BtnAddService_Click(object sender, RoutedEventArgs e)
         {
@@ -156,6 +171,28 @@ namespace Diallo_Business
             {
                 Utils.DeleteOMNote(n.Id);
                 LoadDailyData();
+            }
+        }
+
+        // --- FLUX DIVERS (consultation + suppression) ---
+        private void LoadFlux()
+        {
+            // Bug corrigé : les flux divers enregistrés depuis le Dashboard sont désormais visibles
+            fluxRecents = Utils.GetFlux().OrderByDescending(x => x.Date).Take(50).ToList();
+            GridFlux.ItemsSource = null;
+            GridFlux.ItemsSource = fluxRecents;
+        }
+
+        private void BtnDeleteFlux_Click(object sender, RoutedEventArgs e)
+        {
+            if ((sender as Button).DataContext is FluxDivers f)
+            {
+                if (MessageBox.Show($"Supprimer le flux « {f.Motif} » ({f.Montant:N0} F) ?",
+                    "Confirmation", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                {
+                    Utils.DeleteFlux(f.Id);
+                    LoadFlux();
+                }
             }
         }
     }

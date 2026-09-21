@@ -1,0 +1,118 @@
+<UserControl x:Class="Diallo_Business.UC_Parametres"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d" d:DesignHeight="700" d:DesignWidth="1100">
+
+    <Grid Background="#0B1120" Margin="20">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- CARTE 1 : ACCÈS & SÉCURITÉ (les comptes se gèrent sur la page dédiée « Utilisateurs ») -->
+        <Border Grid.Column="0" Background="#151C2C" CornerRadius="15" Padding="20" Margin="0,0,10,0">
+            <StackPanel>
+                <TextBlock Text="🔐 ACCÈS &amp; SÉCURITÉ" Foreground="#38BDF8" FontSize="16" FontWeight="Bold"/>
+                <TextBlock Text="La gestion des comptes se fait sur sa page dédiée. Chaque utilisateur peut modifier son propre profil via « Mon compte »."
+                           Foreground="#94A3B8" FontSize="11" TextWrapping="Wrap" Margin="0,6,0,15"/>
+
+                <Border Background="#1E293B" CornerRadius="10" Padding="12" Margin="0,0,0,15">
+                    <StackPanel>
+                        <TextBlock Text="UTILISATEURS" Foreground="#94A3B8" FontSize="10" FontWeight="Bold" Margin="0,0,0,8"/>
+                        <UniformGrid Columns="2">
+                            <StackPanel Orientation="Horizontal" Margin="0,4">
+                                <Ellipse Width="8" Height="8" Fill="#38BDF8" Margin="0,0,8,0"/>
+                                <TextBlock Text="Total : " Foreground="#94A3B8" FontSize="12"/>
+                                <TextBlock x:Name="TxtStatTotal" Text="0" Foreground="White" FontSize="13" FontWeight="Bold"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,4">
+                                <Ellipse Width="8" Height="8" Fill="#4ADE80" Margin="0,0,8,0"/>
+                                <TextBlock Text="Actifs : " Foreground="#94A3B8" FontSize="12"/>
+                                <TextBlock x:Name="TxtStatActifs" Text="0" Foreground="White" FontSize="13" FontWeight="Bold"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,4">
+                                <Ellipse Width="8" Height="8" Fill="#F59E0B" Margin="0,0,8,0"/>
+                                <TextBlock Text="En attente : " Foreground="#94A3B8" FontSize="12"/>
+                                <TextBlock x:Name="TxtStatAttente" Text="0" Foreground="White" FontSize="13" FontWeight="Bold"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,4">
+                                <Ellipse Width="8" Height="8" Fill="#F87171" Margin="0,0,8,0"/>
+                                <TextBlock Text="Désactivés : " Foreground="#94A3B8" FontSize="12"/>
+                                <TextBlock x:Name="TxtStatDesactives" Text="0" Foreground="White" FontSize="13" FontWeight="Bold"/>
+                            </StackPanel>
+                        </UniformGrid>
+                        <TextBlock x:Name="TxtAttenteInfo" Text="" Foreground="#F59E0B" FontSize="11" TextWrapping="Wrap" Margin="0,10,0,0" Visibility="Collapsed"/>
+                    </StackPanel>
+                </Border>
+
+                <Button Content="👥 Gérer les utilisateurs" Click="BtnGererUsers_Click" Height="42" Background="#38BDF8" Foreground="#0B1120" FontWeight="Bold" Margin="0,0,0,10"/>
+                <Button Content="🙋 Mon compte (identifiant, mot de passe)" Click="BtnMonCompte_Click" Height="42" Background="#6366F1" Foreground="White" FontWeight="Bold" Margin="0,0,0,10"/>
+                <Button Content="⏻ Se déconnecter" Click="BtnDeconnexion_Click" Height="42" Background="Transparent" BorderBrush="#991B1B" BorderThickness="1" Foreground="#F87171" FontWeight="Bold"/>
+
+                <TextBlock Foreground="#475569" FontSize="10" TextWrapping="Wrap" Margin="0,15,0,0"
+                           Text="Rappel : un compte créé depuis l'écran de connexion (« Créer un compte ») reste « En attente » et ne peut pas se connecter avant activation par un administrateur."/>
+            </StackPanel>
+        </Border>
+
+                <!-- CARTE 2 : LISTES DE RÉFÉRENCE + DONNÉES -->
+        <Border Grid.Column="1" Background="#151C2C" CornerRadius="15" Padding="20" Margin="10,0,0,0">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <TextBlock Text="🛠 SERVICES (SAISIE RAPIDE)" Foreground="#38BDF8" FontSize="14" FontWeight="Bold" Margin="0,0,0,10"/>
+
+                <Border Grid.Row="1" Background="#1E293B" CornerRadius="10" Padding="10" Margin="0,0,0,8">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <StackPanel x:Name="PanelServices"/>
+                    </ScrollViewer>
+                </Border>
+                <Grid Grid.Row="1" Margin="0,0,0,15" VerticalAlignment="Bottom">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <TextBox x:Name="InpNewService"/>
+                    <Button Grid.Row="1" Content="＋ Ajouter le service" Click="BtnAddService_Click" Height="34" Margin="0,8,0,0"
+                            Background="#38BDF8" Foreground="#0B1120" FontWeight="Bold"/>
+                </Grid>
+
+                <TextBlock Grid.Row="2" Text="💳 MOYENS D'ENCAISSEMENT (CLÔTURE)" Foreground="#38BDF8" FontSize="14" FontWeight="Bold" Margin="0,0,0,10"/>
+
+                <Border Grid.Row="3" Background="#1E293B" CornerRadius="10" Padding="10" Margin="0,0,0,8">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <StackPanel x:Name="PanelTransferts"/>
+                    </ScrollViewer>
+                </Border>
+                <Grid Grid.Row="3" Margin="0,0,0,15" VerticalAlignment="Bottom">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <TextBox x:Name="InpNewTransfert"/>
+                    <Button Grid.Row="1" Content="＋ Ajouter le moyen d'encaissement" Click="BtnAddTransfert_Click" Height="34" Margin="0,8,0,0"
+                            Background="#38BDF8" Foreground="#0B1120" FontWeight="Bold"/>
+                </Grid>
+
+                <TextBlock Grid.Row="4" Text="🗄 DONNÉES" Foreground="#38BDF8" FontSize="14" FontWeight="Bold" Margin="0,0,0,10"/>
+                <StackPanel Grid.Row="5">
+                    <TextBlock x:Name="TxtDataPath" Text="Dossier de données : ..." Foreground="#94A3B8" FontSize="11" Margin="0,0,0,8" TextWrapping="Wrap"/>
+                    <UniformGrid Columns="2" Height="40">
+                        <Button Content="💾 Sauvegarder maintenant" Click="BtnBackup_Click" Background="#38BDF8" Foreground="#0B1120" Margin="0,0,4,0"/>
+                        <Button Content="📁 Ouvrir le dossier" Click="BtnOpenFolder_Click" Background="#475569" Margin="4,0,0,0"/>
+                    </UniformGrid>
+                    <TextBlock x:Name="TxtBackupInfo" Text="La sauvegarde automatique est effectuée une fois par jour au démarrage."
+                               Foreground="#94A3B8" FontSize="11" Margin="0,8,0,0" TextWrapping="Wrap"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>
